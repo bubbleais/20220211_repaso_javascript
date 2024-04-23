@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información de Usuario de GitHub</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 class="mt-5 mb-3">Información de Usuario de GitHub</h1>
+        <div id="usuario-info" class="card"></div>
+        <div id="repos-info" class="card"></div>
+    </div>
+
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        const usuario = 'bubbleais';
+
+        async function obtenerInfoUsuario(usuario) {
+            try {
+                const responseUsuario = await fetch(`https://api.github.com/users/${usuario}`);
+                const dataUsuario = await responseUsuario.json();
+
+                const responseRepos = await fetch(`https://api.github.com/users/${usuario}/repos`);
+                const dataRepos = await responseRepos.json();
+
+                mostrarInfoUsuario(dataUsuario, dataRepos);
+            } catch (error) {
+                console.error('Error al obtener la información:', error);
+            }
+        }
+
+        function mostrarInfoUsuario(usuario, repositorios) {
+            const usuarioInfoContainer = document.getElementById('usuario-info');
+            const reposInfoContainer = document.getElementById('repos-info');
+
+
+            usuarioInfoContainer.innerHTML = `
+      <div class="card-body">
+        <h3 class="card-title">${usuario.login}</h3>
+        <img src="${usuario.avatar_url}" alt="Avatar" class="img-fluid mb-3">
+        <p class="card-text">Nombre: ${usuario.name || 'No especificado'}</p>
+        <p class="card-text">Seguidores: ${usuario.followers}</p>
+        <p class="card-text">Repositorios públicos: ${usuario.public_repos}</p>
+        <a href="${usuario.html_url}" target="_blank" class="btn btn-primary">Ver perfil en GitHub</a>
+      </div>
+    `;
+
+
+            const repositoriosHTML = repositorios.map(repo => `
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">${repo.name}</h5>
+          <p class="card-text">${repo.description || 'Sin descripción'}</p>
+          <a href="${repo.html_url}" target="_blank" class="btn btn-secondary">Ver repositorio</a>
+        </div>
+      </div>
+    `).join('');
+
+            reposInfoContainer.innerHTML = `
+      <h3 class="card-title mt-5">Repositorios públicos</h3>
+      ${repositoriosHTML}
+    `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            obtenerInfoUsuario(usuario);
+        });
+    </script>
+
+</body>
+
+</html>
